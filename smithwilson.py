@@ -10,8 +10,7 @@ import numpy as np
 
 
 class RiskFreeRates(object):
-    def __init__(self, swap_rates, swap_maturities, maturities, ufr):
-        alpha = 0.1
+    def __init__(self, swap_rates, swap_maturities, maturities, ufr, alpha):
         omega = np.log(1 + ufr)
         self.maturities = maturities
 

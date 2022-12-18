@@ -1,11 +1,12 @@
 import numpy as np
 from smithwilson import RiskFreeRates
 
-rates = np.array([0.01, 0.02, 0.026, 0.034])
-maturities = np.array([1, 2, 3, 5])
+rates = np.array([0.032, 0.0308, 0.0288, 0.0271])
+maturities = np.array([2, 3, 5, 10])
 projection = np.arange(1, 121)
-ufr = 0.042
+ufr = 0.0345
+alpha = 0.414598
 
-RFR = RiskFreeRates(rates, maturities, projection, ufr)
+RFR = RiskFreeRates(rates, maturities, projection, ufr, alpha)
 r = RFR.rates()
-print(r[3])
+print(r[:19])

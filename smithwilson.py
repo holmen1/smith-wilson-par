@@ -7,6 +7,7 @@ Created December 2022
 """
 
 import numpy as np
+from scipy import optimize
 
 
 class RiskFreeRates(object):
@@ -51,22 +52,14 @@ def cashflows(rates, maturities, durations):
     return CT.T  # = C
 
 
-def find_alpha(alpha, t, u, Q, p, q, tol):
-    error = 1
-    step = 1e-4
-    while error > tol:
-        H = heart(u, u, alpha)
-        b = np.linalg.solve(Q.T @ H @ Q, p - q)
-        error = gap(t, alpha, u, Q, b)
-        alpha = alpha + step
-    return alpha
+def find_alpha(alpha0, t, u, Q, p, q, tol):
+    f = lambda a: gap(t, a, u, Q, p, q) - tol
+    result = optimize.root_scalar(f, bracket=[alpha0, 1.2], method='ridder')
+    return result.root
 
 
-def gap(t, alpha, u, Q, b):
-    kappa = quasi(alpha, u, Q, b)
+def gap(t, alpha, u, Q, p, q):
+    H = heart(u, u, alpha)
+    b = np.linalg.solve(Q.T @ H @ Q, p - q)
+    kappa = (1 + alpha * u @ Q @ b) / (np.sinh(alpha * u) @ Q @ b)
     return alpha / np.abs(1 - kappa * np.exp(alpha * t))
-
-
-# constant to determine the convergence of the alpha parameter
-def quasi(alpha, u, Q, b):
-    return (1 + alpha * u @ Q @ b) / (np.sinh(alpha * u) @ Q @ b)

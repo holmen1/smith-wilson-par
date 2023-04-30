@@ -1,0 +1,41 @@
+
+###
+POST http://127.0.0.1:8000/rfr/api/rates/
+Accept: application/json
+Content-Type: application/json
+
+{
+  "par_rates": [0.03405, 0.03164, 0.02914, 0.02753],
+  "par_maturities": [2, 3, 5, 10],
+  "projection": [1, 151],
+  "ufr": 0.0345,
+  "alpha0": 0.05,
+  "convergence_maturity": 20,
+  "tol": 1E-4
+}
+###INFO:     127.0.0.1:53832 - "POST /rfr/api/rates/ HTTP/1.1" 200 OK
+###{
+###  "r[0]": 0.035834839761121895,
+###  "r[9]": 0.027357998563122488,
+###  "alpha": 0.39922635774331505
+###}
+
+
+
+###
+# Test your FastAPI endpoints
+
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/hello/User
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/rfr/api/0.44
+Accept: application/json
+
+###

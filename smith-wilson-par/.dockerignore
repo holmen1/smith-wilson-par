@@ -1,0 +1,6 @@
+.dockerignore
+Dockerfile
+demo.ipynb
+test_api_main.http
+venv
+

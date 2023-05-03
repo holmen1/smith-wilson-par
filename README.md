@@ -11,6 +11,8 @@ See [EIOPA Risk Free Rate Technical Documentation](https://www.eiopa.europa.eu/s
 ## Usage
 
 ### API
+
+sw_parameters.json
 ```json
 {
   "par_rates": [0.03495, 0.0324, 0.0298, 0.02855],

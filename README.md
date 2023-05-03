@@ -11,6 +11,18 @@ See [EIOPA Risk Free Rate Technical Documentation](https://www.eiopa.europa.eu/s
 ## Usage
 
 ### API
+```json
+{
+  "par_rates": [0.03495, 0.0324, 0.0298, 0.02855],
+  "par_maturities": [2, 3, 5, 10],
+  "projection": [1, 151],
+  "ufr": 0.0345,
+  "alpha0": 0.05,
+  "convergence_maturity": 20,
+  "tol": 1E-4
+}
+```
+
 
 ```bash
 uvicorn api.main:app
@@ -22,8 +34,10 @@ INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 
 ```bash
 curl -X POST 'http://127.0.0.1:8000/rfr/api/rates/' -H 'accept: application/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
+```
 
-{"r[0]":0.035834839761121895,"r[9]":0.027357998563122488,"alpha":0.39922635774331505}
+```json
+{"alpha":0.39922635774331505,"rfr":[0.035834839761121895,0.03401966679727653,0.031544539162605245,0.029971503918941877,0.028975600564583148,0.028254908097557152,[...], 0.03392432779538157,0.03392816454917802]}
 ```
 
 

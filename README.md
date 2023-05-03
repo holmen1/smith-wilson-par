@@ -19,9 +19,9 @@ sw_parameters.json
   "par_maturities": [2, 3, 5, 10],
   "projection": [1, 151],
   "ufr": 0.0345,
-  "alpha0": 0.05,
   "convergence_maturity": 20,
-  "tol": 1E-4
+  "tol": 1E-4,
+  ["alpha0": 0.05]
 }
 ```
 
@@ -75,12 +75,12 @@ $ docker image prune
 ```
 
 ### Notebook
-[demo.ipynb](https://github.com/holmen1/smith-wilson-par/blob/master/demo.ipynb)
+[demo.ipynb](https://github.com/holmen1/smith-wilson-par/blob/master/smith-wilson-par/demo.ipynb)
 
 
 ## TODO
 
-* [ ] Robust find_alpha
+* [x] Robust find_alpha
 * [ ] Publish to Azure
 * [ ] Add tests
 * [ ] RequestModel parameter validation

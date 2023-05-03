@@ -1,3 +1,5 @@
+from typing import Dict, Any, List
+
 from fastapi import FastAPI, Response, status
 import numpy as np
 from pydantic import BaseModel
@@ -9,9 +11,9 @@ class RequestModel(BaseModel):
     par_maturities: list[int]
     projection: list[int]
     ufr: float
-    alpha0: float
     convergence_maturity: int
     tol: float
+    alpha0: float | None
 
 class ResponseModel(BaseModel):
     alpha: float
@@ -44,4 +46,4 @@ async def create_rates(swinput: RequestModel, response: Response) -> ResponseMod
     if rfr := list(r):
         response.status_code = status.HTTP_201_CREATED
 
-    return {"alpha": alpha, "rfr": rfr}
+    return ResponseModel(alpha=alpha, rfr=rfr)

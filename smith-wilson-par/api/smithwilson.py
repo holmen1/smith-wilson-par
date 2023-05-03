@@ -12,7 +12,7 @@ from scipy import optimize
 
 class RiskFreeRates(object):
 
-    def __init__(self, swap_rates, swap_maturities, maturities, ufr, T, tol, alpha0=0.05):
+    def __init__(self, swap_rates, swap_maturities, maturities, ufr, convergence_t, tol, alpha0):
         # Variables as in EIOPA's Technical documentation
         omega = np.log(1 + ufr)
         u = maturities  # projection
@@ -22,7 +22,7 @@ class RiskFreeRates(object):
         d = np.exp(-omega * u)
         q = C.T @ d
         Q = np.diag(d) @ C
-        alpha = find_alpha(alpha0, T, u, Q, p, q, tol) if alpha0 == 0.05 else alpha0
+        alpha = find_alpha(convergence_t, u, Q, p, q, tol) if alpha0 is None else alpha0
         H = heart(u, u, alpha)
         b = np.linalg.solve(Q.T @ H @ Q, p - q)
 
@@ -52,10 +52,19 @@ def cashflows(rates, maturities, durations):
     return CT.T  # = C
 
 
-def find_alpha(alpha0, t, u, Q, p, q, tol):
+def find_alpha(t, u, Q, p, q, tol):
+    alpha0 = 1E-3
     f = lambda a: gap(t, a, u, Q, p, q) - tol
-    result = optimize.root_scalar(f, bracket=[alpha0, 1.2], method='ridder')
-    return result.root
+    try:
+        result = optimize.root_scalar(f, bracket=[alpha0, 1.2], method='brentq')
+        alpha = result.root
+    except:
+        error = 1
+        step = 1E-5
+        while error > tol:
+            error = f(alpha)
+            alpha += step
+    return alpha
 
 
 def gap(t, alpha, u, Q, p, q):

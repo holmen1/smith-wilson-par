@@ -67,6 +67,7 @@ $ docker image prune
 * [ ] Robust find_alpha
 * [ ] Publish to Azure
 * [ ] Add tests
+* [ ] RequestModel parameter validation
 * [ ] Add documentation
 * [ ] Add logging
 * [ ] Add CI/CD

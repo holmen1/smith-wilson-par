@@ -1,10 +1,10 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 import numpy as np
 from pydantic import BaseModel
 from .smithwilson import RiskFreeRates
 
 
-class SWinput(BaseModel):
+class RequestModel(BaseModel):
     par_rates: list[float]
     par_maturities: list[int]
     projection: list[int]
@@ -13,26 +13,24 @@ class SWinput(BaseModel):
     convergence_maturity: int
     tol: float
 
+class ResponseModel(BaseModel):
+    alpha: float
+    rfr: list[float]
 
-app = FastAPI()
+
+app = FastAPI(
+    title="smith-wilson-par",
+    description="A RESTful API to extrapolate Risk Free Rates from par swap rates using the Smith-Wilson method",
+    version="1.5.1",
+)
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
-
-
-@app.get("/rfr/api/{alpha}")
-async def read_alpha(alpha: float):
-    return {"message": f"alpha {alpha}"}
-
-# Retrive SWinput
-@app.post("/rfr/api/rates/")
-async def read_rates(swinput: SWinput):
+@app.post("/rfr/api/rates/", status_code=200)
+async def create_rates(swinput: RequestModel, response: Response) -> ResponseModel:
     rates = np.array(swinput.par_rates)
     maturities = np.array(swinput.par_maturities)
     projection = np.arange(swinput.projection[0], swinput.projection[1])
@@ -41,7 +39,9 @@ async def read_rates(swinput: SWinput):
     convergence_maturity = swinput.convergence_maturity
     tol = swinput.tol
 
-    RFR = RiskFreeRates(rates, maturities, projection, ufr, convergence_maturity, tol)
+    RFR = RiskFreeRates(rates, maturities, projection, ufr, convergence_maturity, tol, alpha0)
     alpha, r = RFR.result
+    if rfr := list(r):
+        response.status_code = status.HTTP_201_CREATED
 
-    return {"r[0]": r[0], "r[9]": r[9], "alpha": alpha}
+    return {"alpha": alpha, "rfr": rfr}

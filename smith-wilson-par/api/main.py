@@ -13,7 +13,6 @@ class RequestModel(BaseModel):
     ufr: float
     convergence_maturity: int
     tol: float
-    alpha0: float | None
 
 class ResponseModel(BaseModel):
     alpha: float
@@ -31,15 +30,14 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.post("/rfr/api/rates/", status_code=200)
-async def create_rates(swinput: RequestModel, response: Response) -> ResponseModel:
-    rates = np.array(swinput.par_rates)
-    maturities = np.array(swinput.par_maturities)
-    projection = np.arange(swinput.projection[0], swinput.projection[1])
-    ufr = swinput.ufr
-    alpha0 = swinput.alpha0
-    convergence_maturity = swinput.convergence_maturity
-    tol = swinput.tol
+@app.post("/rfr/api/rates", status_code=200)
+async def create_rates(req: RequestModel, response: Response, alpha0: float | None = None) -> ResponseModel:
+    rates = np.array(req.par_rates)
+    maturities = np.array(req.par_maturities)
+    projection = np.arange(req.projection[0], req.projection[1])
+    ufr = req.ufr
+    convergence_maturity = req.convergence_maturity
+    tol = req.tol
 
     RFR = RiskFreeRates(rates, maturities, projection, ufr, convergence_maturity, tol, alpha0)
     alpha, r = RFR.result

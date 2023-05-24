@@ -10,7 +10,7 @@ See [EIOPA Risk Free Rate Technical Documentation](https://www.eiopa.europa.eu/s
 
 ## Usage
 
-### API
+## API
 
 sw_parameters.json
 ```json
@@ -20,7 +20,7 @@ sw_parameters.json
   "projection": [1, 151],
   "ufr": 0.0345,
   "convergence_maturity": 20,
-  "tol": 1E-4,
+  "tol": 1E-4
 }
 ```
 
@@ -46,35 +46,94 @@ Rate projection with predefined alpha
 curl -X POST 'http://127.0.0.1:8000/rfr/api/rates?alpha0=0.17' -H 'accept: application/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
 ```
 
-### Dockerized API
+## Dockerized API
 
-
-Create
+Build
 ```bash
-$ docker compose build
-
-$ docker compose up -d
-
-[+] Running 1/1
- ⠿ Container smith-wilson-par_web_1  Started  
+docker build --tag 'smith-wilson-api' .
+```
+Run
+```bash
+docker run -dp 8004:80 'smith-wilson-api'
 ```
 Test
 ```bash
-$ curl 'http://localhost:8004'
-
+curl 'http://localhost:8004'
+```
+```json
 {"message":"Hello, World!"}
 ```
-Destroy
+Stop
 ```bash
-$ docker compose down
+docker ps
+```
+```bash
+CONTAINER ID  IMAGE  COMMAND CREATED  STATUS  PORTS NAMES  
+399836b60511    holmen1/smith-wilson-api  "uvicorn api.main:ap…"  About a minute ago   Up About a minute  0.0.0.0:8004->8000/tcp, :::8004->8000/tcp unruffled_dewdney
+```
 
-[+] Running 2/2
- ⠿ Container smith-wilson-par_web_1    Removed                                                                                                                    0.8s
- ⠿ Network "smith-wilson-par_default"  Removed
- ```
-  Prune
+```bash
+docker stop unruffled_dewdney
+```
+
+Prune
 ```bash
 $ docker image prune
+```
+
+## Deploy to Azure Container Instances
+
+```bash
+RESOURCE_GROUP="actuarial-apps-rg"
+LOCATION="northeurope"
+API_NAME="smith-wilson-api"
+GITHUB_USERNAME="holmen1"
+ACI_NAME="aci"$GITHUB_USERNAME
+```
+
+```bash
+docker build --tag $GITHUB_USERNAME/$API_NAME .  
+docker push $GITHUB_USERNAME/$API_NAME
+```
+
+Create a resource group
+```bash
+az group create --name $RESOURCE_GROUP --location $LOCATION
+```
+
+Create a container
+```bash
+az container create \
+  --name $ACI_NAME \
+  --resource-group $RESOURCE_GROUP \
+  --image $GITHUB_USERNAME/$API_NAME \
+  --ports 80 \
+  --dns-name-label $ACI_NAME
+```
+
+```bash
+az container show --resource-group $RESOURCE_GROUP --name $ACI_NAME --query "{FQDN:ipAddress.fqdn,ProvisioningState:provisioningState}" --out table
+````
+FQDN  ProvisioningState  
+aciholmen1.northeurope.azurecontainer.io  Succeeded
+
+
+Pull the container logs
+```bash
+az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
+```
+INFO:     Started server process [19]  
+INFO:     Waiting for application startup.  
+INFO:     Application startup complete.  
+INFO:     Uvicorn running on http://0.0.0.0:80 (Press CTRL+C to quit)  
+INFO:     10.92.0.24:57618 - "GET / HTTP/1.1" 200 OK  
+INFO:     10.92.0.24:57711 - "GET / HTTP/1.1" 200 OK  
+INFO:     10.92.0.25:62559 - "GET / HTTP/1.1" 200 OK  
+
+
+Clean up resources
+```bash
+az group delete --name $RESOURCE_GROUP
 ```
 
 ### Notebook
@@ -84,9 +143,10 @@ $ docker image prune
 ## TODO
 
 * [x] Robust find_alpha
-* [ ] Publish to Azure
+* [x] Deploy to Azure
 * [ ] Add tests
 * [ ] RequestModel parameter validation
+* [ ] Zero coupon bond
 * [ ] Add documentation
 * [ ] Add logging
 * [ ] Add CI/CD

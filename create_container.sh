@@ -15,4 +15,5 @@ az container create \
   --resource-group $RESOURCE_GROUP \
   --image $GITHUB_USERNAME/$API_NAME \
   --ports 80 \
+  --environment-variables 'PORT'='8000' \
   --dns-name-label $ACI_NAME

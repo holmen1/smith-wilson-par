@@ -107,7 +107,8 @@ az container create \
   --name $ACI_NAME \
   --resource-group $RESOURCE_GROUP \
   --image $GITHUB_USERNAME/$API_NAME \
-  --ports 80 \
+  --ports 8000 \
+  --environment-variables 'PORT'='8000' \
   --dns-name-label $ACI_NAME
 ```
 
@@ -117,6 +118,10 @@ az container show --resource-group $RESOURCE_GROUP --name $ACI_NAME --query "{FQ
 FQDN  ProvisioningState  
 aciholmen1.northeurope.azurecontainer.io  Succeeded
 
+```bash
+curl -X POST 'aciholmen1.northeurope.azurecontainer.io:8000/rfr/api/rates' -H 'acceptn/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
+```
+
 
 Pull the container logs
 ```bash
@@ -125,10 +130,10 @@ az container logs --resource-group $RESOURCE_GROUP --name $ACI_NAME
 INFO:     Started server process [19]  
 INFO:     Waiting for application startup.  
 INFO:     Application startup complete.  
-INFO:     Uvicorn running on http://0.0.0.0:80 (Press CTRL+C to quit)  
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)  
 INFO:     10.92.0.24:57618 - "GET / HTTP/1.1" 200 OK  
-INFO:     10.92.0.24:57711 - "GET / HTTP/1.1" 200 OK  
-INFO:     10.92.0.25:62559 - "GET / HTTP/1.1" 200 OK  
+INFO:     10.92.0.24:51326 - "POST /rfr/api/rates HTTP/1.1" 201 Created
+INFO:     10.92.0.25:50880 - "GET /openapi.json HTTP/1.1" 200 OK
 
 
 Clean up resources
@@ -149,6 +154,6 @@ az group delete --name $RESOURCE_GROUP
 * [ ] Zero coupon bond
 * [ ] Add documentation
 * [ ] Add logging
-* [ ] Add CI/CD
+* [ ] Add GitHub Actions
 * [x] Add Dockerfile
 * [x] Add Docker-compose

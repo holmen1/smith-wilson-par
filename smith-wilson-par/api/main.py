@@ -34,7 +34,10 @@ async def root():
 async def create_rates(req: RequestModel, response: Response, alpha0: float | None = None) -> ResponseModel:
     rates = np.array(req.par_rates)
     maturities = np.array(req.par_maturities)
-    projection = np.arange(req.projection[0], req.projection[1])
+    start_year = req.projection[0]
+    end_year = req.projection[1]  # not inclusive
+    intervals_per_year = req.projection[2] if len(req.projection) == 3 else 1
+    projection = np.arange(start_year, end_year, 1 / intervals_per_year).round(6)  # rounding to ensure integer years
     ufr = req.ufr
     convergence_maturity = req.convergence_maturity
     tol = req.tol

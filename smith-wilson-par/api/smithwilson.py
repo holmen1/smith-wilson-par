@@ -41,22 +41,20 @@ def heart(u, v, alpha):
 def cashflows(rates, maturities, durations):
     CT = np.zeros((maturities.size, durations.size))
     for i in np.arange(maturities.size):
-        maturity_index = np.where(durations == maturities[i])[0]
-        for j in np.arange(durations.size):
-            if j < maturity_index:
-                CT[i, j] = rates[i]
-            elif j == maturity_index:
-                CT[i, j] = 1 + rates[i]
-            else:
-                CT[i, j] = 0
+        # Yearly settlement frequency
+        settlement_indices = [c for c, x in enumerate(durations) if x <= maturities[i] and x % 1 == 0]
+        for j in settlement_indices:
+            CT[i, j] = rates[i]
+        # Notional repayment
+        CT[i, settlement_indices[-1]] += 1
     return CT.T  # = C
 
 
 def find_alpha(t, u, Q, p, q, tol):
-    alpha0 = 1E-3
+    alpha = 1E-3
     f = lambda a: gap(t, a, u, Q, p, q) - tol
     try:
-        result = optimize.root_scalar(f, bracket=[alpha0, 1.2], method='brentq')
+        result = optimize.root_scalar(f, bracket=[alpha, 1.2], method='brentq')
         alpha = result.root
     except:
         error = 1

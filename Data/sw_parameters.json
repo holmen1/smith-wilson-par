@@ -1,7 +1,7 @@
 {
   "par_rates": [0.03495, 0.0324, 0.0298, 0.02855],
   "par_maturities": [2, 3, 5, 10],
-  "projection": [1, 151],
+  "projection": [1, 151, 12],
   "ufr": 0.0345,
   "convergence_maturity": 20,
   "tol": 1E-4

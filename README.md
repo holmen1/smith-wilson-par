@@ -34,7 +34,7 @@ INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ````
 
 ```bash
-curl -X POST 'http://127.0.0.1:8000/rfr/api/rates/' -H 'accept: application/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
+curl -X POST 'http://127.0.0.1:8000/rfr/api/rates' -H 'accept: application/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
 ```
 
 ```json
@@ -54,7 +54,7 @@ docker build --tag 'smith-wilson-api' .
 ```
 Run
 ```bash
-docker run -dp 8004:80 'smith-wilson-api'
+docker run -dp 8004:8000 'smith-wilson-api'
 ```
 Test
 ```bash

@@ -26,7 +26,7 @@ class RiskFreeRates(object):
         price = d + np.diag(d) @ H @ Q @ b
         rates = np.power(1 / price[1:], 1 / u[1:]) - 1
         price[0] = 1.0
-        rates = np.insert(rates, 0, 0.0)
+        rates = np.insert(rates, 0, rates[0])
         self.result = (alpha, rates, price)
 
 

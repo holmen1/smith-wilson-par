@@ -17,6 +17,7 @@ class RequestModel(BaseModel):
 class ResponseModel(BaseModel):
     alpha: float
     rfr: list[float]
+    price: list[float]
 
 
 app = FastAPI(
@@ -27,7 +28,7 @@ app = FastAPI(
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello from Smith-Wilson API!"}
 
 
 @app.post("/rfr/api/rates", status_code=200)
@@ -43,8 +44,8 @@ async def create_rates(req: RequestModel, response: Response, alpha0: float | No
     tol = req.tol
 
     RFR = RiskFreeRates(rates, maturities, projection, ufr, convergence_maturity, tol, alpha0)
-    alpha, r = RFR.result
+    alpha, r, price = RFR.result
     if rfr := list(r):
         response.status_code = status.HTTP_201_CREATED
 
-    return ResponseModel(alpha=alpha, rfr=rfr)
+    return ResponseModel(alpha=alpha, rfr=rfr, price=list(price))

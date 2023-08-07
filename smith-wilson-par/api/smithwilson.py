@@ -1,10 +1,7 @@
 """
-
 Created December 2022
-
-@author: holmen1
-
 """
+__author__ = 'holmen1'
 
 import numpy as np
 from scipy import optimize
@@ -27,8 +24,10 @@ class RiskFreeRates(object):
         b = np.linalg.solve(Q.T @ H @ Q, p - q)
 
         price = d + np.diag(d) @ H @ Q @ b
-        rates = np.power(1 / price, 1 / u) - 1
-        self.result = (alpha, rates)
+        rates = np.power(1 / price[1:], 1 / u[1:]) - 1
+        price[0] = 1.0
+        rates = np.insert(rates, 0, 0.0)
+        self.result = (alpha, rates, price)
 
 
 def heart(u, v, alpha):

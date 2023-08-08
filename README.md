@@ -15,12 +15,13 @@ See [EIOPA Risk Free Rate Technical Documentation](https://www.eiopa.europa.eu/s
 sw_parameters.json
 ```json
 {
-  "par_rates": [0.03495, 0.0324, 0.0298, 0.02855],
+  "par_rates": [0.0363, 0.033716, 0.030886, 0.02917],
   "par_maturities": [2, 3, 5, 10],
   "projection": [1, 151],
   "ufr": 0.0345,
   "convergence_maturity": 20,
-  "tol": 1E-4
+  "tol": 1E-4,
+  "credit_risk_adjustment": 0.001
 }
 ```
 
@@ -34,7 +35,7 @@ INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ````
 
 ```bash
-curl -X POST 'http://127.0.0.1:8000/rfr/api/rates' -H 'accept: application/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
+curl -X POST 'http://127.0.0.1:8000/api/eiopa' -H 'accept: application/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
 ```
 
 ```json
@@ -43,7 +44,7 @@ curl -X POST 'http://127.0.0.1:8000/rfr/api/rates' -H 'accept: application/json'
 
 Rate projection with predefined alpha
 ```bash
-curl -X POST 'http://127.0.0.1:8000/rfr/api/rates?alpha0=0.17' -H 'accept: application/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
+curl -X POST 'http://127.0.0.1:8000/api/eiopa?alpha0=0.17' -H 'accept: application/json' -H 'Content-Type: application/json' -d @./Data/sw_parameters.json
 ```
 
 ## Dockerized API
@@ -61,7 +62,7 @@ Test
 curl 'http://localhost:8004'
 ```
 ```json
-{"message":"Hello, World!"}
+{"message":"Hello from Smith-Wilson API!"}
 ```
 Stop
 ```bash

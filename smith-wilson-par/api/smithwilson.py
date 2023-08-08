@@ -6,12 +6,22 @@ __author__ = 'holmen1'
 import numpy as np
 from scipy import optimize
 
+# Constants useed in optimization
+ALPHA_LOWER_BOUND = 1E-3
+ALPHA_UPPER_BOUND = 1.2
+STEP_SIZE = 1E-5
 
-class RiskFreeRates(object):
+class SmithWilson(object):
 
-    def __init__(self, swap_rates, swap_maturities, maturities, ufr, convergence_t, tol, alpha0):
+    def __init__(self, ufr, convergence_t, tol, alpha0):
+        self.ufr = ufr
+        self.convergence_t = convergence_t
+        self.tol = tol
+        self.alpha0 = alpha0
+
+    def project(self, swap_rates, swap_maturities, maturities):
         # Variables as in EIOPA's Technical documentation
-        omega = np.log(1 + ufr)
+        omega = np.log(1 + self.ufr)
         u = maturities  # projection
         v = swap_maturities
         p = np.ones(v.size)
@@ -19,15 +29,12 @@ class RiskFreeRates(object):
         d = np.exp(-omega * u)
         q = C.T @ d
         Q = np.diag(d) @ C
-        alpha = find_alpha(convergence_t, u, Q, p, q, tol) if alpha0 is None else alpha0
+        alpha = find_alpha(self.convergence_t, u, Q, p, q, self.tol) if self.alpha0 is None else self.alpha0
         H = heart(u, u, alpha)
         b = np.linalg.solve(Q.T @ H @ Q, p - q)
 
         price = d + np.diag(d) @ H @ Q @ b
-        rates = np.power(1 / price[1:], 1 / u[1:]) - 1
-        price[0] = 1.0
-        rates = np.insert(rates, 0, rates[0])
-        self.result = (alpha, rates, price)
+        return (alpha, price)
 
 
 def heart(u, v, alpha):
@@ -50,14 +57,19 @@ def cashflows(rates, maturities, durations):
 
 
 def find_alpha(t, u, Q, p, q, tol):
-    alpha = 1E-3
+    """
+    :return: alpha, giving a forward rate within tol from UFR at time t
+    """
+    alpha = ALPHA_LOWER_BOUND
     f = lambda a: gap(t, a, u, Q, p, q) - tol
     try:
-        result = optimize.root_scalar(f, bracket=[alpha, 1.2], method='brentq')
+        result = optimize.root_scalar(f, bracket=[alpha, ALPHA_UPPER_BOUND], method='brentq')
         alpha = result.root
-    except:
+    except Exception as e:
+        print(f"Failed to optimize alpha value due to: {str(e)}.")
+        # If optimization fails, do a simple search until tol is met
         error = 1
-        step = 1E-5
+        step = STEP_SIZE
         while error > tol:
             error = f(alpha)
             alpha += step

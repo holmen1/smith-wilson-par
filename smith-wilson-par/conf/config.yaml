@@ -1,0 +1,8 @@
+risk_free_rates:
+  sek:
+    par_maturities: [2, 3, 5, 10]
+    projection: [1, 151]
+    ufr: 0.0345
+    convergence_maturity: 20
+    tol: 1E-4
+    credit_risk_adjustment: 0.001

@@ -17,11 +17,6 @@ sw_parameters.json
 {
   "par_rates": [0.0363, 0.033716, 0.030886, 0.02917],
   "par_maturities": [2, 3, 5, 10],
-  "projection": [1, 151],
-  "ufr": 0.0345,
-  "convergence_maturity": 20,
-  "tol": 1E-4,
-  "credit_risk_adjustment": 0.001
 }
 ```
 
